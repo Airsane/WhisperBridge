@@ -13,7 +13,6 @@ client.once('ready', () => {
     console.log(`Logged in as ${client.user.tag}`);
 });
 
-
 const handleIncomingMessage = async (message) => {
     if (message.author.bot) return;
     if (message.guildId !== null) return;
@@ -22,7 +21,6 @@ const handleIncomingMessage = async (message) => {
     const guild = client.guilds.cache.get(guildId);
     let channel = guild.channels.cache.find(channel => channel.name === message.author.id);
     if (!channel) {
-        // The .create() method expects (name, options), not a single object
         channel = await guild.channels.create(
             message.author.id,
             { type: 'GUILD_TEXT' }
@@ -30,19 +28,43 @@ const handleIncomingMessage = async (message) => {
         console.log(`Created channel ${channel.name}`);
     }
 
-    channel.send(`<@${pingedUserId}> ${message.author.username}: ${message.content}`);
+    // Prepare message options
+    let content = `<@${pingedUserId}> ${message.author.username}:`;
+    if (message.content && message.content.trim() !== '') {
+        content += ` ${message.content}`;
+    }
+
+    let options = {};
+    if (message.attachments && message.attachments.size > 0) {
+        options.files = Array.from(message.attachments.values()).map(att => att.url);
+    }
+
+    // Send message with content and/or attachments
+    if ((content.trim() !== `<@${pingedUserId}> ${message.author.username}:`) || (options.files && options.files.length > 0)) {
+        channel.send({ content: content, files: options.files });
+    }
 }
+
 
 const handleOutgoingMessage = async (message) => {
     if (message.author.bot) return;
     if (message.author.id === client.user.id) return;
-    if(message.guildId !== guildId) return;
+    if (message.guildId !== guildId) return;
 
     const userId = message.channel.name;
     const user = client.users.cache.get(userId);
-    if(!user) return;
+    if (!user) return;
 
-    user.send(message.content);
+    // Prepare message options
+    let options = {};
+    if (message.attachments && message.attachments.size > 0) {
+        options.files = Array.from(message.attachments.values()).map(att => att.url);
+    }
+
+    // If message has content or attachments, send accordingly
+    if ((message.content && message.content.trim() !== '') || (options.files && options.files.length > 0)) {
+        user.send({ content: message.content || undefined, files: options.files });
+    }
 }
 
 

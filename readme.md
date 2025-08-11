@@ -77,11 +77,10 @@ Logged in as <your_name#tag>
 - Selfbots are not supported by Discord and may stop working at any time
 - If a user has locked DMs, sending back will fail – you won't see anything in the log
 - Channel is named with pure `userId` – consider this in permissions and moderation
-- Code forwards only pure text (`message.content`). Attachments/embeds are not handled
 
 ## Extensions (TODO)
 
-- Forwarding attachments (images, files) and links
+- ✅ Forwarding attachments (images, files) and links
 - Mapping `userId` → `#channel` with readable alias (e.g., `dm-<username>-<id>`)
 - Permission verification and more elegant error handling
 - Logging (winston / pino) and configuration via `config.*`
