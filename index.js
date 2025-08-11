@@ -27,7 +27,7 @@ client.on('presenceUpdate', async (oldMember, newMember) => {
         return;
     }
 
-    if(newMember.status !== currentStatus){
+    if(newMember.status !== currentStatus && newMember.status !== 'offline'){
         client.user.setStatus(newMember.status);
         logger.info('Setting status to ' + newMember.status);
         return;
