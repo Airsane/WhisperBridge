@@ -1,27 +1,12 @@
-version: '3.8'
-
 services:
-  discordbot:
+  whisper-bot:
     build: .
-    container_name: discord-bot
+    container_name: whisper-bot
     restart: unless-stopped
     environment:
       - NODE_ENV=production
-      # Add your Discord bot token and other environment variables here
-      # - DISCORD_TOKEN=your_discord_bot_token
-      # - DISCORD_CLIENT_ID=your_client_id
-      # - DISCORD_GUILD_ID=your_guild_id
+      # - TOKEN=your_discord_bot_token
+      # - PINGED_USER_ID=your_client_id
+      # - GUILD_ID=your_guild_id
     volumes:
-      # Mount a volume for persistent data if needed
-      # - ./data:/app/data
-      # Mount environment file
       - ./.env:/app/.env:ro
-    # If your bot needs to expose a port for webhooks or dashboard
-    # ports:
-    #   - "3000:3000"
-    networks:
-      - discord-bot-network
-
-networks:
-  discord-bot-network:
-    driver: bridge 
