@@ -14,27 +14,48 @@ let logger;
 
 client.once('ready', async () => {
     logger.info(`Logged in as ${client.user.tag}`);
-    // check user status every 5 minuts
-    if(checkStatus){
-        setInterval(checkUserStatus, 60 * 1000 * 5);
+});
+
+client.on('presenceUpdate', async (oldMember, newMember) => {
+    if(!checkStatus) return;
+    if(newMember.userId !== pingedUserId) return;
+
+    const currentStatus = client.user.presence?.status;
+    if(newMember.status === 'offline' && currentStatus !== 'invisible'){
+        client.user.setStatus('invisible');
+        logger.info('Setting status to invisible');
+        return;
     }
+
+    if(newMember.status !== currentStatus){
+        client.user.setStatus(newMember.status);
+        logger.info('Setting status to ' + newMember.status);
+        return;
+    }
+
+
 });
 
 const checkUserStatus = async () =>{
-    const guild = client.guilds.cache.get(guildId);
-    const user = await guild.members.fetch(pingedUserId);
-    const presence = user.presence?.status;
-    const currentStatus = client.user.presence?.status;
-    logger.info(`Current status: ${currentStatus}, Presence: ${presence}`);
-    if(presence === currentStatus) return;
-    if(presence === undefined && currentStatus === 'invisible') return;
+    try {
+        const guild = await client.guilds.fetch(guildId);
+        guild.members.cache.clear();
+        const user = await guild.members.fetch(pingedUserId, { force: true }); // Force fetch to get latest status
+        const presence = user.presence?.status;
+        const currentStatus = client.user.presence?.status;
+        logger.info(`Current status: ${currentStatus}, Presence: ${presence}`);
+        if(presence === currentStatus) return;
+        if(presence === undefined && currentStatus === 'invisible') return;
 
-    if(presence !== undefined){
-        client.user.setStatus(presence);
-        logger.info('Setting status to ' + presence);
-    } else{
-        client.user.setStatus('invisible');
-        logger.info('Setting status to invisible');
+        if(presence !== undefined){
+            client.user.setStatus(presence);
+            logger.info('Setting status to ' + presence);
+        } else{
+            client.user.setStatus('invisible');
+            logger.info('Setting status to invisible');
+        }
+    } catch (error) {
+        logger.error('Error checking user status:', error);
     }
 }
 
